@@ -9,9 +9,11 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,23 +25,35 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.Executor
+import android.media.ExifInterface
+import androidx.compose.ui.geometry.Size
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun CustomCameraScreen(
@@ -48,6 +62,7 @@ fun CustomCameraScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val haptics = LocalHapticFeedback.current
 
     val imageCapture = remember { ImageCapture.Builder().build() }
     val cameraSelector = remember { CameraSelector.DEFAULT_BACK_CAMERA }
@@ -56,14 +71,30 @@ fun CustomCameraScreen(
     var camera by remember { mutableStateOf<Camera?>(null) }
 
     // Ensure flash gets turned off if the composable leaves the screen unexpectedly 
-    // (e.g. back button or system interruption)
     DisposableEffect(Unit) {
         onDispose {
             camera?.cameraControl?.enableTorch(false)
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Animations
+    val infiniteTransition = rememberInfiniteTransition(label = "scanner")
+    val scanLineAnim by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scanLine"
+    )
+    
+    val buttonScale by animateFloatAsState(
+        targetValue = if (isCapturing) 0.85f else 1f, 
+        label = "buttonScale"
+    )
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         // Camera Preview
         AndroidView(
             modifier = Modifier.fillMaxSize(),
@@ -114,11 +145,11 @@ fun CustomCameraScreen(
             val rectHeight: Float
             
             if (isPortrait) {
-                // Portrait orientation: Taller rectangle to cover max screen
+                // Portrait orientation
                 rectWidth = canvasWidth * 0.85f
                 rectHeight = rectWidth * 1.58f
             } else {
-                // Landscape orientation: Wider rectangle
+                // Landscape orientation
                 rectHeight = canvasHeight * 0.85f
                 rectWidth = rectHeight * 1.58f
             }
@@ -141,12 +172,12 @@ fun CustomCameraScreen(
                 )
             }
             
-            // Subtract hole from background using BlendMode
+            // Subtract hole from background
             with(drawContext.canvas.nativeCanvas) {
                 val checkPoint = saveLayer(null, null)
                 drawPath(
                     path = backgroundPath,
-                    color = Color.Black.copy(alpha = 0.6f)
+                    color = Color.Black.copy(alpha = 0.75f) // Darker frosted feel
                 )
                 drawPath(
                     path = holePath,
@@ -159,7 +190,7 @@ fun CustomCameraScreen(
             // Draw Viewfinder Border Frame
             val cornerLength = 40.dp.toPx()
             val strokeWidth = 4.dp.toPx()
-            val strokeColor = Color(0xFF38BDF8)
+            val strokeColor = Color(0xFF00E5FF) // Cyber Cyan
 
             // Top-Left corner
             drawLine(strokeColor, Offset(left, top), Offset(left + cornerLength, top), strokeWidth)
@@ -176,91 +207,152 @@ fun CustomCameraScreen(
             // Bottom-Right corner
             drawLine(strokeColor, Offset(right, bottom), Offset(right - cornerLength, bottom), strokeWidth)
             drawLine(strokeColor, Offset(right, bottom), Offset(right, bottom - cornerLength), strokeWidth)
+
+            // Animated Scanner Line
+            val scanLineY = top + (rectHeight * scanLineAnim)
+            
+            // Glowing line
+            drawLine(
+                color = strokeColor.copy(alpha = 0.8f),
+                start = Offset(left, scanLineY),
+                end = Offset(right, scanLineY),
+                strokeWidth = 2.dp.toPx()
+            )
+            
+            // Glow gradient
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, strokeColor.copy(alpha = 0.3f), Color.Transparent),
+                    startY = scanLineY - 30f,
+                    endY = scanLineY + 30f
+                ),
+                topLeft = Offset(left, scanLineY - 30f),
+                size = Size(rectWidth, 60f)
+            )
         }
 
-        // Top Cancel Button
-        IconButton(
-            onClick = {
-                // Ensure torch is disabled before navigating away via Cancel
-                if (isFlashOn) {
-                    camera?.cameraControl?.enableTorch(false)
-                    isFlashOn = false
-                }
-                onCancel()
-            },
+        // Top Action Bar
+        Row(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .padding(top = 24.dp)
-                .size(48.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                .fillMaxWidth()
+                .padding(top = 48.dp, start = 24.dp, end = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("X", color = Color.White, fontWeight = FontWeight.Bold)
-        }
-
-        // Top Flash Button
-        IconButton(
-            onClick = {
-                isFlashOn = !isFlashOn
-                camera?.cameraControl?.enableTorch(isFlashOn)
-            },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .padding(top = 24.dp)
-                .size(48.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-        ) {
-            Text(if (isFlashOn) "⚡" else "☼", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        }
-
-        // Guide Text
-        Text(
-            text = "Align ID Card within frame",
-            color = Color.White,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = 120.dp)
-                .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        )
-
-        // Capture Button
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp)
-                .size(80.dp)
-                .border(4.dp, Color.White, CircleShape)
-                .padding(8.dp)
-                .background(if (isCapturing) Color.Gray else Color.White, CircleShape)
-                .clickable(enabled = !isCapturing) {
-                    isCapturing = true
-                    
-                    // Turn off flash visually FIRST, immediately when button is clicked
+            // Close Button
+            IconButton(
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (isFlashOn) {
                         camera?.cameraControl?.enableTorch(false)
                         isFlashOn = false
                     }
+                    onCancel()
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.5f))
+            ) {
+                Text("✕", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            }
 
-                    takePhoto(
-                        context = context,
-                        imageCapture = imageCapture,
-                        executor = ContextCompat.getMainExecutor(context),
-                        onImageCaptured = { uri ->
-                            isCapturing = false
-                            if (uri != null) {
-                                onImageCaptured(uri)
-                            } else {
-                                Toast.makeText(context, "Failed to capture photo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    )
-                }
+            // Flash Button
+            IconButton(
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    isFlashOn = !isFlashOn
+                    camera?.cameraControl?.enableTorch(isFlashOn)
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(if (isFlashOn) Color(0xFFFFC107).copy(alpha = 0.8f) else Color.Black.copy(alpha = 0.5f))
+            ) {
+                Text(
+                    text = if (isFlashOn) "⚡" else "☼",
+                    color = if (isFlashOn) Color.Black else Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+            }
+        }
+
+        // Bottom Controls Layer
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (isCapturing) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color.White)
+            // Guide Pill
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Text("ℹ", color = Color(0xFF00E5FF), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Position ID Card inside the frame",
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Premium Shutter Button
+            Box(
+                modifier = Modifier
+                    .size(84.dp)
+                    .scale(buttonScale) // Animates scale on click
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.3f))
+                    .clickable(enabled = !isCapturing) {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        isCapturing = true
+
+                        takePhoto(
+                            context = context,
+                            imageCapture = imageCapture,
+                            executor = ContextCompat.getMainExecutor(context),
+                            onCaptureStarted = {
+                                if (isFlashOn) {
+                                    camera?.cameraControl?.enableTorch(false)
+                                    isFlashOn = false
+                                }
+                            },
+                            onImageCaptured = { uri ->
+                                isCapturing = false
+                                if (uri != null) {
+                                    onImageCaptured(uri)
+                                } else {
+                                    Toast.makeText(context, "Failed to capture", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                // Inner button body
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .border(3.dp, Color.White, CircleShape)
+                        .background(if (isCapturing) Color(0xFF00E5FF) else Color.White, CircleShape)
+                ) {
+                    if (isCapturing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(24.dp), 
+                            color = Color.Black, 
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
             }
         }
     }
@@ -270,21 +362,57 @@ private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture,
     executor: Executor,
+    onCaptureStarted: () -> Unit,
     onImageCaptured: (Uri?) -> Unit
 ) {
-    val photoFile = File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
-    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
     imageCapture.takePicture(
-        outputOptions,
         executor,
-        object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                val savedUri = Uri.fromFile(photoFile)
-                onImageCaptured(savedUri)
+        object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                // Trigger instant flash off (runs on main thread via executor)
+                onCaptureStarted()
+                
+                val rotationDegrees = image.imageInfo.rotationDegrees
+
+                // Save file in background
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val photoFile = File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+                        
+                        val bytes = image.use { proxy ->
+                            val buffer = proxy.planes[0].buffer
+                            val array = ByteArray(buffer.remaining())
+                            buffer.get(array)
+                            array
+                        }
+                        
+                        FileOutputStream(photoFile).use { it.write(bytes) }
+                        
+                        // Apply correct EXIF orientation based on rotationDegrees
+                        val exif = ExifInterface(photoFile.absolutePath)
+                        val orientation = when (rotationDegrees) {
+                            90 -> ExifInterface.ORIENTATION_ROTATE_90
+                            180 -> ExifInterface.ORIENTATION_ROTATE_180
+                            270 -> ExifInterface.ORIENTATION_ROTATE_270
+                            else -> ExifInterface.ORIENTATION_NORMAL
+                        }
+                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, orientation.toString())
+                        exif.saveAttributes()
+                        
+                        withContext(Dispatchers.Main) {
+                            onImageCaptured(Uri.fromFile(photoFile))
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CameraScreen", "Photo save failed: ${e.message}", e)
+                        withContext(Dispatchers.Main) {
+                            onImageCaptured(null)
+                        }
+                    }
+                }
             }
 
             override fun onError(exception: ImageCaptureException) {
+                onCaptureStarted()
                 Log.e("CameraScreen", "Photo capture failed: ${exception.message}", exception)
                 onImageCaptured(null)
             }
