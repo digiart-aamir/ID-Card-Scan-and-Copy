@@ -108,4 +108,10 @@ app/src/main/
 As outlined in our `playstore_assets/3_PRIVACY_POLICY.md`, this application does not track, collect, or transmit any user data. All camera captures and image processing happen locally on the user's hardware.
 
 ---
+
+## 👨‍💻 Developer
+
+**Engr Aamir Jamil**  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/engr-aamir-jamil/)
+
 *Developed with ❤️ using Jetpack Compose.*
