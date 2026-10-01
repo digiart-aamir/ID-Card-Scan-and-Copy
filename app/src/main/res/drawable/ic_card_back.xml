@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- Outer Card Outline -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M8,16 h48 a4,4 0 0,1 4,4 v24 a4,4 0 0,1 -4,4 h-48 a4,4 0 0,1 -4,-4 v-24 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Magnetic Strip -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M4,22 h56 v7 h-56 z" />
+
+    <!-- Signature Bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,33 h28 v5 h-28 z" />
+
+    <!-- Chip/Microprint Barcode Lines -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M12,41 h38 v2 h-38 z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M12,44 h24 v2 h-24 z" />
+</vector>

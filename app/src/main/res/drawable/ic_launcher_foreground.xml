@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Duplicate card behind (Copy effect) -->
+    <path
+        android:fillColor="#1E40AF"
+        android:pathData="M30,32 h48 a4,4 0 0,1 4,4 v30 a4,4 0 0,1 -4,4 h-48 a4,4 0 0,1 -4,-4 v-30 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Main Front ID Card -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M26,38 h48 a4,4 0 0,1 4,4 v30 a4,4 0 0,1 -4,4 h-48 a4,4 0 0,1 -4,-4 v-30 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Card Header Strip -->
+    <path
+        android:fillColor="#1D4ED8"
+        android:pathData="M26,38 h48 a4,4 0 0,1 4,4 v6 h-56 v-6 a4,4 0 0,1 4,-4 z" />
+
+    <!-- User Photo Avatar Frame -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,52 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M38,52 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+
+    <!-- Card Text Lines -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,51 h20 v2 h-20 z" />
+    <path
+        android:fillColor="#BFDBFE"
+        android:pathData="M48,56 h15 v2 h-15 z" />
+    <path
+        android:fillColor="#BFDBFE"
+        android:pathData="M48,61 h18 v2 h-18 z" />
+
+    <!-- Scanner Corner Brackets -->
+    <!-- Top-Left Bracket -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M18,28 h10 v3 h-7 v7 h-3 z" />
+    <!-- Top-Right Bracket -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M90,28 h-10 v3 h7 v7 h3 z" />
+    <!-- Bottom-Left Bracket -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M18,80 h10 v-3 h-7 v-7 h-3 z" />
+    <!-- Bottom-Right Bracket -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M90,80 h-10 v-3 h7 v-7 h3 z" />
+
+    <!-- Green Glowing Scan Line across the card -->
+    <path
+        android:fillColor="#4ADE80"
+        android:pathData="M20,53 h68 v2 h-68 z" />
+</vector>

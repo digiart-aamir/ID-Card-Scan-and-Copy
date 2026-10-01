@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.IDCardScanCopy" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+
+        <!-- Use vector drawable as the animated icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app_logo_splash</item>
+
+        <!-- Define how long the icon animation takes (if animated) -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+
+        <!-- Post-splash screen theme (your main app theme) -->
+        <item name="postSplashScreenTheme">@style/Theme.IDCardScanCopy</item>
+
+        <!-- Add standard status bar colors to match standard themes -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

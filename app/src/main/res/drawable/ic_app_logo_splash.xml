@@ -1,0 +1,73 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+
+    <!-- Outer Background Circle -->
+    <path
+        android:pathData="M144,144m-120,0a120,120 0,1 1,240 0a120,120 0,1 1,-240 0"
+        android:fillColor="@color/splash_icon_background"/>
+
+    <group
+        android:pivotX="144"
+        android:pivotY="144"
+        android:scaleX="1.3"
+        android:scaleY="1.3">
+
+        <!-- ID Card Body -->
+        <path
+            android:pathData="M80,105h128c8.84,0 16,7.16 16,16v54c0,8.84 -7.16,16 -16,16H80c-8.84,0 -16,-7.16 -16,-16v-54c0,-8.84 7.16,-16 16,-16z"
+            android:fillColor="#1565C0" />
+
+        <!-- ID Card Inner Border -->
+        <path
+            android:pathData="M80,105h128c8.84,0 16,7.16 16,16v54c0,8.84 -7.16,16 -16,16H80c-8.84,0 -16,-7.16 -16,-16v-54c0,-8.84 7.16,-16 16,-16z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4" />
+
+        <!-- Profile Picture Placeholder -->
+        <path
+            android:pathData="M92,125h36v36H92z"
+            android:fillColor="#90CAF9" />
+
+        <!-- Profile Picture Person Icon (Head) -->
+        <path
+            android:pathData="M110,138m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0"
+            android:fillColor="#1565C0" />
+
+        <!-- Profile Picture Person Icon (Body) -->
+        <path
+            android:pathData="M110,147c-6,0 -12,3 -12,7v7h24v-7c0,-4 -6,-7 -12,-7z"
+            android:fillColor="#1565C0" />
+
+        <!-- Text Lines -->
+        <!-- Name Line -->
+        <path
+            android:pathData="M142,125h54v6H142z"
+            android:fillColor="#90CAF9" />
+
+        <!-- Info Line 1 -->
+        <path
+            android:pathData="M142,140h36v4H142z"
+            android:fillColor="#FFFFFF" />
+
+        <!-- Info Line 2 -->
+        <path
+            android:pathData="M142,150h44v4H142z"
+            android:fillColor="#FFFFFF" />
+
+        <!-- Info Line 3 -->
+        <path
+            android:pathData="M142,160h28v4H142z"
+            android:fillColor="#FFFFFF" />
+
+        <!-- Scanner Line & Glow Effect -->
+        <path
+            android:pathData="M56,128h176v6H56z"
+            android:fillColor="#4CAF50" />
+        <path
+            android:pathData="M64,124h160v14H64z"
+            android:fillColor="#804CAF50" />
+    </group>
+</vector>

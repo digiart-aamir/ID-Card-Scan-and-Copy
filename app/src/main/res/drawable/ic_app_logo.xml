@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+
+    <!-- Card background duplicate -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M18,20 h36 a4,4 0 0,1 4,4 v24 a4,4 0 0,1 -4,4 h-36 a4,4 0 0,1 -4,-4 v-24 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Main Front ID Card -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M14,24 h36 a4,4 0 0,1 4,4 v24 a4,4 0 0,1 -4,4 h-36 a4,4 0 0,1 -4,-4 v-24 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Header Strip -->
+    <path
+        android:fillColor="#1D4ED8"
+        android:pathData="M14,24 h36 a4,4 0 0,1 4,4 v5 h-44 v-5 a4,4 0 0,1 4,-4 z" />
+
+    <!-- Photo Circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M19,37 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#60A5FA"
+        android:pathData="M21,37 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- Text Lines -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,35 h16 v2 h-16 z" />
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M30,39 h12 v2 h-12 z" />
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M30,43 h14 v2 h-14 z" />
+
+    <!-- Scan Line -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M8,38 h48 v2 h-48 z" />
+
+    <!-- Scanner Corner Top-Left -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M8,18 h8 v2 h-6 v6 h-2 z" />
+    <!-- Scanner Corner Top-Right -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M56,18 h-8 v2 h6 v6 h2 z" />
+    <!-- Scanner Corner Bottom-Left -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M8,58 h8 v-2 h-6 v-6 h-2 z" />
+    <!-- Scanner Corner Bottom-Right -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M56,58 h-8 v-2 h6 v-6 h2 z" />
+</vector>
