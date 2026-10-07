@@ -19,6 +19,6 @@
 
         <!-- Add standard status bar colors to match standard themes -->
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

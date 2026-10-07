@@ -9,6 +9,6 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Splash Screen Colors -->
-    <color name="splash_background">#F8F9FA</color>
+    <color name="splash_background">#0B2239</color>
     <color name="splash_icon_background">#E3F2FD</color>
 </resources>

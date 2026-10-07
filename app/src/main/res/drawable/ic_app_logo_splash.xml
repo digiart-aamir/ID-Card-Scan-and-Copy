@@ -18,7 +18,7 @@
         <!-- ID Card Body -->
         <path
             android:pathData="M80,105h128c8.84,0 16,7.16 16,16v54c0,8.84 -7.16,16 -16,16H80c-8.84,0 -16,-7.16 -16,-16v-54c0,-8.84 7.16,-16 16,-16z"
-            android:fillColor="#1565C0" />
+            android:fillColor="#0B2239" />
 
         <!-- ID Card Inner Border -->
         <path
@@ -34,12 +34,12 @@
         <!-- Profile Picture Person Icon (Head) -->
         <path
             android:pathData="M110,138m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0"
-            android:fillColor="#1565C0" />
+            android:fillColor="#0B2239" />
 
         <!-- Profile Picture Person Icon (Body) -->
         <path
             android:pathData="M110,147c-6,0 -12,3 -12,7v7h24v-7c0,-4 -6,-7 -12,-7z"
-            android:fillColor="#1565C0" />
+            android:fillColor="#0B2239" />
 
         <!-- Text Lines -->
         <!-- Name Line -->

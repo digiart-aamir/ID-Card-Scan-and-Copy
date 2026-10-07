@@ -29,7 +29,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -52,9 +51,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
+import com.asbots.idcardscancopy.ui.AppNavigationDrawer
 import com.asbots.idcardscancopy.ui.PerspectiveCropScreen
+import com.asbots.idcardscancopy.ui.PdfResultScreen
 import com.asbots.idcardscancopy.ui.CustomCameraScreen
 import com.asbots.idcardscancopy.ui.ImageFilterScreen
+import com.asbots.idcardscancopy.ui.HomeScreen
+import com.asbots.idcardscancopy.ui.RenameSheet
+import com.asbots.idcardscancopy.ui.SourceSheet
 import com.asbots.idcardscancopy.ui.theme.IDCardScanCopyTheme
 import java.io.File
 import java.io.FileInputStream
@@ -64,15 +68,28 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
+
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.asbots.idcardscancopy.ui.PermissionScreen
+import com.asbots.idcardscancopy.ui.hasAllPermissions
+
+
 enum class PdfAction { SAVE, SHARE }
 
 class MainActivity : ComponentActivity() {
+
+    // true when every permission the app needs is already allowed
+    private var permissionsGranted by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        permissionsGranted = hasAllPermissions(this)
         setContent {
             IDCardScanCopyTheme {
+                // "Not now" lets the user in for this session only
+                var skipped by rememberSaveable { mutableStateOf(false) }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Surface(
                         modifier = Modifier
@@ -80,11 +97,24 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        IDCardScannerApp()
+                        if (permissionsGranted || skipped) {
+                            IDCardScannerApp()
+                        } else {
+                            PermissionScreen(
+                                onAllGranted = { permissionsGranted = true },
+                                onSkip = { skipped = true }
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+
+    // Runs again when the user comes back from Settings or after a permission dialog
+    override fun onResume() {
+        super.onResume()
+        permissionsGranted = hasAllPermissions(this)
     }
 }
 
@@ -92,6 +122,7 @@ class MainActivity : ComponentActivity() {
 fun IDCardScannerApp() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     var frontImageUri by remember { mutableStateOf<Uri?>(null) }
     var rawFrontImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -170,6 +201,14 @@ fun IDCardScannerApp() {
         }
     }
 
+    val resetAllState = {
+        frontImageUri = null
+        rawFrontImageUri = null
+        backImageUri = null
+        rawBackImageUri = null
+        pdfFile = null
+    }
+
     if (showCameraScreen) {
         CustomCameraScreen(
             onImageCaptured = { uri: Uri ->
@@ -197,6 +236,8 @@ fun IDCardScannerApp() {
                 }
                 showFilterScreen = false
                 croppedImageToFilterUri = null
+                pdfFile = null
+
             },
             onCancel = {
                 showFilterScreen = false
@@ -217,185 +258,108 @@ fun IDCardScannerApp() {
                 rawImageToCropUri = null
             }
         )
+    } else if (pdfFile != null) {
+        PdfResultScreen(
+            pdfFile = pdfFile!!,
+            onPrint = { pdfFile?.let { printPdf(context, it) } },
+            onShare = {
+                customFileName = pdfFile?.nameWithoutExtension ?: "IDCardCopies"
+                pendingAction = PdfAction.SHARE
+                showRenameDialog = true
+            },
+            onSave = {
+                customFileName = pdfFile?.nameWithoutExtension ?: "IDCardCopies"
+                pendingAction = PdfAction.SAVE
+                showRenameDialog = true
+            },
+            onFinishAndReset = {
+                resetAllState()
+            }
+        )
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // App Branding Header
-            Text(
-                text = "ID Card Scan & Copy",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
-            )
-
-            // Front Side Card Box
-            CardSelectionView(
-                title = "Front Side",
-                uri = frontImageUri,
-                onClick = { startSelectionOrCrop(true) },
-                onClear = {
-                    frontImageUri = null
-                    rawFrontImageUri = null
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Back Side Card Box
-            CardSelectionView(
-                title = "Back Side",
-                uri = backImageUri,
-                onClick = { startSelectionOrCrop(false) },
-                onClear = {
-                    backImageUri = null
-                    rawBackImageUri = null
-                }
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = {
+        AppNavigationDrawer(drawerState = drawerState) {
+            HomeScreen(
+                frontUri = frontImageUri,
+                backUri = backImageUri,
+                isGenerating = isGeneratingPdf,
+                onOpenDrawer = {
+                    coroutineScope.launch { drawerState.open() }
+                },
+                onSlotClick = { front -> startSelectionOrCrop(front) },
+                onClear = { front ->
+                    if (front) {
+                        frontImageUri = null
+                        rawFrontImageUri = null
+                    } else {
+                        backImageUri = null
+                        rawBackImageUri = null
+                    }
+                    pdfFile = null
+                },
+                onGenerate = {
                     if (frontImageUri == null || backImageUri == null) {
                         Toast.makeText(context, "Please scan both front and back", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    isGeneratingPdf = true
-                    coroutineScope.launch {
-                        val file = generatePdf(context, frontImageUri, backImageUri)
-                        pdfFile = file
-                        isGeneratingPdf = false
-                        if (file != null) {
-                            Toast.makeText(context, "PDF Generated Successfully!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                enabled = !isGeneratingPdf
-            ) {
-                Text(if (isGeneratingPdf) "Generating..." else "Generate 8 Copies PDF")
-            }
-
-            if (pdfFile != null) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(onClick = { printPdf(context, pdfFile!!) }) {
-                        Text("Print")
-                    }
-                    Button(onClick = {
-                        customFileName = pdfFile!!.nameWithoutExtension
-                        pendingAction = PdfAction.SHARE
-                        showRenameDialog = true
-                    }) {
-                        Text("Share")
-                    }
-                    Button(onClick = {
-                        customFileName = pdfFile!!.nameWithoutExtension
-                        pendingAction = PdfAction.SAVE
-                        showRenameDialog = true
-                    }) {
-                        Text("Save")
-                    }
-                }
-            }
-        }
-
-        // Rename Dialog
-        if (showRenameDialog) {
-            AlertDialog(
-                onDismissRequest = { showRenameDialog = false },
-                title = { Text("Rename File", fontWeight = FontWeight.Bold) },
-                text = {
-                    OutlinedTextField(
-                        value = customFileName,
-                        onValueChange = { customFileName = it },
-                        label = { Text("File Name") },
-                        singleLine = true,
-                        suffix = { Text(".pdf") }
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showRenameDialog = false
-                            val finalName = if (customFileName.isNotBlank()) customFileName.trim() else "IDCardCopies"
-                            val newFileName = "$finalName.pdf"
-                            
-                            // Rename the cached file so sharing/saving gets the correct name
-                            val renamedFile = File(context.cacheDir, newFileName)
-                            if (pdfFile?.absolutePath != renamedFile.absolutePath) {
-                                pdfFile?.renameTo(renamedFile)
-                                pdfFile = renamedFile
+                    } else {
+                        isGeneratingPdf = true
+                        coroutineScope.launch {
+                            val file = generatePdf(context, frontImageUri, backImageUri)
+                            pdfFile = file
+                            isGeneratingPdf = false
+                            if (file == null) {
+                                Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
                             }
-
-                            when (pendingAction) {
-                                PdfAction.SAVE -> savePdfToDownloads(context, pdfFile!!, newFileName)
-                                PdfAction.SHARE -> sharePdf(context, pdfFile!!)
-                                else -> {}
-                            }
-                            pendingAction = null
                         }
-                    ) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showRenameDialog = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-
-        // Source Dialog (Camera / Gallery)
-        if (showSourceDialog) {
-            AlertDialog(
-                onDismissRequest = { showSourceDialog = false },
-                title = { Text("Select Image Source", fontWeight = FontWeight.Bold) },
-                text = {
-                    Column {
-                        TextButton(
-                            onClick = {
-                                showSourceDialog = false
-                                openCamera()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Take Photo with Camera", fontSize = 16.sp)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        TextButton(
-                            onClick = {
-                                showSourceDialog = false
-                                openGallery()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Choose from Gallery", fontSize = 16.sp)
-                        }
-                    }
-                },
-                confirmButton = {},
-                dismissButton = {
-                    TextButton(onClick = { showSourceDialog = false }) {
-                        Text("Cancel")
                     }
                 }
             )
         }
     }
+
+    if (showRenameDialog) {
+            RenameSheet(
+                fileName = customFileName,
+                confirmLabel = if (pendingAction == PdfAction.SHARE) "Share" else "Save to Downloads",
+                onNameChange = { customFileName = it },
+                onConfirm = {
+                    showRenameDialog = false
+                    val finalName = customFileName.trim().ifBlank { "IDCardCopies" }
+                    val newFileName = "$finalName.pdf"
+
+                    // Rename the cached file so sharing/saving gets the correct name
+                    val renamedFile = File(context.cacheDir, newFileName)
+                    if (pdfFile?.absolutePath != renamedFile.absolutePath) {
+                        pdfFile?.renameTo(renamedFile)
+                        pdfFile = renamedFile
+                    }
+
+                    when (pendingAction) {
+                        PdfAction.SAVE -> savePdfToDownloads(context, renamedFile, newFileName)
+                        PdfAction.SHARE -> sharePdf(context, renamedFile)
+                        else -> {}
+                    }
+                    pendingAction = null
+                },
+                onDismiss = {
+                    showRenameDialog = false
+                    pendingAction = null
+                }
+            )
+        }
+
+        if (showSourceDialog) {
+            SourceSheet(
+                isFront = isFrontSide,
+                onCamera = {
+                    showSourceDialog = false
+                    openCamera()
+                },
+                onGallery = {
+                    showSourceDialog = false
+                    openGallery()
+                },
+                onDismiss = { showSourceDialog = false }
+            )
+        }
 }
 
 private fun createTempImageUri(context: Context): Uri? {
@@ -408,86 +372,6 @@ private fun createTempImageUri(context: Context): Uri? {
     }
 }
 
-@Composable
-fun CardSelectionView(
-    title: String,
-    uri: Uri?,
-    onClick: () -> Unit,
-    onClear: () -> Unit
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(title, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
-            if (uri != null) {
-                Row {
-                    Text(
-                        text = "Crop / Edit",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clickable { onClick() }
-                            .padding(end = 12.dp, bottom = 8.dp)
-                    )
-                    Text(
-                        text = "Clear",
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clickable { onClear() }
-                            .padding(bottom = 8.dp)
-                    )
-                }
-            }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.LightGray.copy(alpha = 0.35f))
-                .border(
-                    width = 1.dp,
-                    color = if (uri != null) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.Transparent,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .clickable { onClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            if (uri != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp)
-                )
-            } else {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = if (title.contains("Front", ignoreCase = true)) R.drawable.ic_card_front else R.drawable.ic_card_back
-                        ),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(52.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Tap to Scan/Crop $title", fontWeight = FontWeight.Medium, fontSize = 15.sp)
-                }
-            }
-        }
-    }
-}
 
 suspend fun generatePdf(context: Context, frontUri: Uri?, backUri: Uri?): File? {
     return withContext(Dispatchers.IO) {
