@@ -72,6 +72,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.asbots.idcardscancopy.ui.PermissionScreen
 import com.asbots.idcardscancopy.ui.hasAllPermissions
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 
 
 enum class PdfAction { SAVE, SHARE }
@@ -84,13 +89,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
         enableEdgeToEdge()
         permissionsGranted = hasAllPermissions(this)
         setContent {
             IDCardScanCopyTheme {
                 // "Not now" lets the user in for this session only
                 var skipped by rememberSaveable { mutableStateOf(false) }
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        if (permissionsGranted || skipped) {
+                            AdMobBanner(modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                ) { innerPadding ->
                     Surface(
                         modifier = Modifier
                             .fillMaxSize()
@@ -116,6 +129,21 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         permissionsGranted = hasAllPermissions(this)
     }
+}
+
+@Composable
+fun AdMobBanner(modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            AdView(context).apply {
+                // Use test ad unit ID for testing as requested
+                setAdSize(AdSize.BANNER)
+                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
 }
 
 @Composable

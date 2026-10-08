@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation("androidx.core:core-splashscreen:1.2.0")
 
+    // AdMob
+    implementation("com.google.android.gms:play-services-ads:23.4.0")
+
     // CameraX
     val camerax_version = "1.4.0"
     implementation("androidx.camera:camera-core:${camerax_version}")
