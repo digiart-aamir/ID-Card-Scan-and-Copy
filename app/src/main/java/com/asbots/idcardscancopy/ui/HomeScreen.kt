@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.Menu
 import com.asbots.idcardscancopy.ui.theme.Amber
 import com.asbots.idcardscancopy.ui.theme.OnAmber
 import com.asbots.idcardscancopy.ui.theme.successColor
-import java.io.File
 
 /** Home screen: 3-step flow (front, back, generate). */
 @Composable
@@ -53,42 +52,33 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
+        // --- FIXED TOP SECTION ---
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                IconButton(
-                    onClick = onOpenDrawer,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Open Navigation Menu",
-                        tint = MaterialTheme.colorScheme.onSurface
+            IconButton(
+                onClick = onOpenDrawer,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        shape = CircleShape
                     )
-                }
-
-                Image(
-                    painter = painterResource(R.drawable.ic_app_logo),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Open Navigation Menu",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
-                Text("ID Card Scan & Copy", style = MaterialTheme.typography.titleMedium)
             }
+
+            Text("ID Card Scan & Copy", style = MaterialTheme.typography.titleMedium)
         }
 
         Text(
@@ -96,6 +86,7 @@ fun HomeScreen(
             style = MaterialTheme.typography.headlineMedium
         )
         if (!bothReady) {
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 "Scan both sides. Get 8 copies per page, ready to print.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -103,37 +94,58 @@ fun HomeScreen(
             )
         }
 
-        StepSlot(1, "Front side", frontUri, { onSlotClick(true) }, { onClear(true) })
-        StepSlot(2, "Back side", backUri, { onSlotClick(false) }, { onClear(false) })
+        Spacer(modifier = Modifier.height(14.dp))
 
-        Spacer(Modifier.height(4.dp))
-        Button(
-            onClick = onGenerate,
-            enabled = bothReady && !isGenerating,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Amber,
-                contentColor = OnAmber,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        // --- MIDDLE SCROLLABLE SECTION (CARDS) ---
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text(
-                if (isGenerating) "Generating..." else "Generate 8 copies PDF",
-                style = MaterialTheme.typography.labelLarge
-            )
+            StepSlot(1, "Front side", frontUri, { onSlotClick(true) }, { onClear(true) })
+            StepSlot(2, "Back side", backUri, { onSlotClick(false) }, { onClear(false) })
+            Spacer(modifier = Modifier.height(6.dp))
         }
-        if (!bothReady) {
-            Text(
-                "Scan both sides to continue",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+
+        // --- FIXED BOTTOM SECTION ---
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = onGenerate,
+                enabled = bothReady && !isGenerating,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Amber,
+                    contentColor = OnAmber,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Text(
+                    if (isGenerating) "Generating..." else "Generate 8 copies PDF",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+            if (!bothReady) {
+                Text(
+                    "Scan both sides to continue",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
-        Spacer(Modifier.height(8.dp))
     }
 }
 
@@ -196,8 +208,8 @@ private fun StepSlot(
                     Image(
                         painter = rememberAsyncImagePainter(uri),
                         contentDescription = "$title scan",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize().padding(6.dp)
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {

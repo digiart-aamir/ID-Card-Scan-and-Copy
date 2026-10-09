@@ -12,7 +12,7 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app_logo_splash</item>
 
         <!-- Define how long the icon animation takes (if animated) -->
-        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenAnimationDuration">2500</item>
 
         <!-- Post-splash screen theme (your main app theme) -->
         <item name="postSplashScreenTheme">@style/Theme.IDCardScanCopy</item>

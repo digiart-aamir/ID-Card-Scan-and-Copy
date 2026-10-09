@@ -64,8 +64,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 
@@ -87,7 +89,14 @@ class MainActivity : ComponentActivity() {
     private var permissionsGranted by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        var keepSplashScreen = true
+        lifecycleScope.launch {
+            delay(2500L)
+            keepSplashScreen = false
+        }
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this) {}
         enableEdgeToEdge()
