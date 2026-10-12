@@ -1,0 +1,5 @@
+Use this URL for your Privacy Policy in the Google Play Console:
+
+https://docs.google.com/document/d/1VkOGLApZEGa-YfKehgJQj25YW0uQupvoWYJUAiKJMi0/edit?usp=sharing
+
+It is important to submit this exact URL in the "App Content" -> "Privacy Policy" section of your Google Play Console dashboard to comply with Google Play's developer policies.
