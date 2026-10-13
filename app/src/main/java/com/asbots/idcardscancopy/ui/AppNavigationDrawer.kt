@@ -2,6 +2,7 @@ package com.asbots.idcardscancopy.ui
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -92,7 +92,7 @@ fun AppNavigationDrawer(
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
-                        showPrivacyDialog = true
+                        openPrivacyPolicy(context)
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -473,6 +473,17 @@ private fun FeatureItem(title: String, description: String) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+private const val PRIVACY_POLICY_URL = "https://docs.google.com/document/d/1VkOGLApZEGa-YfKehgJQj25YW0uQupvoWYJUAiKJMi0/edit?usp=sharing"
+
+private fun openPrivacyPolicy(context: Context) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
