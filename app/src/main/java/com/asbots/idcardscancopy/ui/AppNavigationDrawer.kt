@@ -476,7 +476,7 @@ private fun FeatureItem(title: String, description: String) {
     }
 }
 
-private const val PRIVACY_POLICY_URL = "https://docs.google.com/document/d/13O2PsfXVdPLG1FH7rizQ4mH5iGIcpeL_-31lBQcVL4A/edit?usp=sharing"
+private const val PRIVACY_POLICY_URL = "https://docs.google.com/document/d/1VkOGLApZEGa-YfKehgJQj25YW0uQupvoWYJUAiKJMi0/edit?usp=sharing"
 
 private fun openPrivacyPolicy(context: Context) {
     try {

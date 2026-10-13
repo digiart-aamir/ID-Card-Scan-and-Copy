@@ -1,31 +1,66 @@
-Privacy Policy for ID Card Scan & Copy
+# Privacy Policy for ID Card Scan & Copy
 
-At ID Card Scan & Copy, your privacy is our top priority. We understand the importance of protecting your personal information and are committed to ensuring that your data remains safe. This Privacy Policy outlines how we handle your information and the steps we take to safeguard your privacy.
+**Effective Date:** 12 October 2026
 
-Data Collection
-ID Card Scan & Copy does not collect, store, or share any personal document data on external servers. Our app is designed to function locally on your device without transmitting your scanned documents, ID cards, CNIC, or images to any cloud servers. We do not require or request any personal information, such as names, email addresses, or phone numbers, to use the app.
+Thank you for choosing to use the "ID Card Scan & Copy" application (the "App"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this policy, or our practices with regards to your personal information, please contact us.
 
-Usage Data & Local Document Processing
-ID Card Scan & Copy operates locally on your device, processing document scanning, perspective cropping, image filters, and 8-copy A4 PDF generation directly on your phone. We do not collect or store any usage data or captured document images on external servers. Your activities and scanned documents within the app remain completely private and are kept strictly on your local device storage.
+---
 
-Permissions
-The app requires access to your device's Camera and Storage to function correctly:
-• Camera Permission: Solely used to capture real-time photos of the front and back of your ID cards or documents for processing. We do not record video or access the camera in the background.
-• Storage Permission: Used strictly to save generated A4 PDF files to your device's Downloads folder and to allow you to select document photos from your device gallery.
+### 1. Information We Collect and How We Use It
 
-Third-Party Services
-Our app uses Google AdMob to display non-intrusive advertisements. Google AdMob may collect and process non-personal device information (such as advertising IDs and performance metrics) to serve ads in accordance with Google's Privacy Policy (https://policies.google.com/privacy). We do not share any document images or personal user data with AdMob or any third-party services.
+Our App is specifically designed to maximize user privacy by processing sensitive documents locally on your device.
 
-Data Security
-While ID Card Scan & Copy processes all documents locally and does not store personal data on remote servers, we prioritize the security of the app itself. We have implemented industry-standard security measures to ensure that the app remains free from vulnerabilities, providing you with a safe and reliable tool for document scanning and copying.
+* **Camera Access:** We request camera access to allow you to scan and capture images of your ID cards.
+* **Storage/Media Access:** We request storage permissions to allow you to select images from your gallery and to save the generated PDF files directly to your device (such as your Downloads folder).
+* **Local Processing (No Cloud Storage):** All image capturing, cropping, perspective correction, filtering, and PDF generation are performed locally on your device. We **DO NOT** upload, store, collect, or transmit your ID card images or generated PDFs to any of our servers. Your sensitive documents remain entirely on your personal device.
 
-Children's Privacy
-ID Card Scan & Copy is designed for general audiences and does not collect any personal information from users of any age. As we do not collect personal data or store documents on servers, there is no risk of inadvertently collecting information from children.
+---
 
-Changes to This Policy
-We may update this Privacy Policy from time to time to reflect any changes in our practices or for other operational, legal, or regulatory reasons. Any updates will be updated accordingly, and your continued use of ID Card Scan & Copy will signify your acceptance of any changes.
+### 2. Third-Party Services (Advertisements)
 
-Contact Us
-If you have any questions or concerns about this Privacy Policy or the practices of ID Card Scan & Copy, please feel free to contact us at [abdullahdeveloper2024@gmail.com].
+To keep the App free for users, we use third-party advertising services, specifically Google AdMob. These third-party ad networks may collect and use certain data (such as your IP address, device identifiers, advertising ID, and usage data) to provide personalized or non-personalized advertisements.
 
-By using ID Card Scan & Copy, you agree to this Privacy Policy. Rest assured that your privacy is fully protected, as we do not collect, store, or share any of your personal information or document scans. Enjoy using ID Card Scan & Copy with confidence, knowing your data is safe and secure.
+* For more information on how Google collects and uses your data, please review the Google AdMob Privacy Policy: [https://policies.google.com/privacy](https://policies.google.com/privacy)
+
+---
+
+### 3. Data Sharing and Disclosure
+
+Because we do not collect, transmit, or store your personal data or documents on our servers, we do not share, sell, or disclose your personal information to third parties. 
+
+Your generated PDFs and images are only shared if **YOU** explicitly choose to use the "Share" feature within the App to send the PDF via other apps (e.g., email, messaging apps) installed on your device.
+
+---
+
+### 4. Data Retention
+
+Images captured or selected during the use of the App are temporarily stored in your device's cache memory to generate the final PDF. The final PDF is saved locally in your designated storage. You retain complete control over these files and can delete them from your device at any time. Uninstalling the App or clearing the App's cache will remove any temporary files generated by the App.
+
+---
+
+### 5. Security
+
+We value your trust. Because the App operates primarily offline for its core features and keeps your sensitive document data on your local device, the risk of data breaches from our end is virtually non-existent. However, it is your responsibility to secure your device (e.g., via screen locks) and carefully choose who you share your generated PDFs with.
+
+---
+
+### 6. Children's Privacy
+
+Our App does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us.
+
+---
+
+### 7. Changes to This Privacy Policy
+
+We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Effective Date" at the top of this document. You are advised to review this Privacy Policy periodically for any changes.
+
+---
+
+### 8. Contact Us
+
+If you have any questions, suggestions, or concerns about our Privacy Policy, do not hesitate to contact us at:
+
+* **Email:** digiart.aamir@gmail.com
+* **Regards:** Engr. Aamir Jamil
+* **Phone:** 0341-4579704
+* **LinkedIn:** [https://www.linkedin.com/in/engr-aamir-jamil/](https://www.linkedin.com/in/engr-aamir-jamil/)
