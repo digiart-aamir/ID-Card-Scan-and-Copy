@@ -13,7 +13,7 @@ android {
         applicationId = "com.asbots.idcardscancopy"
         minSdk = 27
         targetSdk = 37
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

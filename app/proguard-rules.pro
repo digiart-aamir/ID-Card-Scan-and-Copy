@@ -1,6 +1,15 @@
 # Preserve Line Numbers and Annotations for Debugging
 -keepattributes SourceFile,LineNumberTable,*Annotation*,Signature,InnerClasses,EnclosingMethod
 
+# WorkManager & Room Keep Rules (Fixes "Failed to create an instance of androidx.work.impl.WorkDatabase")
+-keep class * extends androidx.room.RoomDatabase { *; }
+-keep class * extends androidx.work.Worker { *; }
+-keep class * extends androidx.work.ListenableWorker { *; }
+-keep class androidx.work.impl.WorkDatabase_Impl { *; }
+-keep class androidx.work.impl.** { *; }
+-keep class androidx.room.** { *; }
+-keep class androidx.startup.** { *; }
+
 # Google Play Services & AdMob Keep Rules
 -keep class com.google.android.gms.ads.** { *; }
 -keep interface com.google.android.gms.ads.** { *; }
