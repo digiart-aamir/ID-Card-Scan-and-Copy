@@ -146,9 +146,11 @@ fun AdMobBanner(modifier: Modifier = Modifier) {
         modifier = modifier,
         factory = { context ->
             AdView(context).apply {
-                // Use test ad unit ID for testing as requested
+                // Real Ad Unit ID for Production
+                // TEST ID (use for debugging): "ca-app-pub-3940256099942544/6300978111"
                 setAdSize(AdSize.BANNER)
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                // adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                adUnitId = "ca-app-pub-1161800446046285/3151815438"
                 loadAd(AdRequest.Builder().build())
             }
         }

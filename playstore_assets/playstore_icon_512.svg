@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Vibrant Blue Background Gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+
+    <!-- Clean White ID Card Gradient -->
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+
+    <!-- Shadows & Glows -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.35" />
+    </filter>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Base Square (Google Play automatically masks the corners) -->
+  <rect width="512" height="512" fill="url(#bg)" />
+
+  <!-- Background decorative rings -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.1" />
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.05" />
+
+  <!-- ID Card Graphic -->
+  <g filter="url(#shadow)">
+      <rect x="96" y="146" width="320" height="220" rx="24" fill="url(#cardBg)" />
+
+      <!-- Profile Picture Placeholder -->
+      <rect x="136" y="186" width="80" height="100" rx="12" fill="#94a3b8" />
+      <circle cx="176" cy="226" r="24" fill="#cbd5e1" />
+      <path d="M 136 286 C 136 240, 216 240, 216 286" fill="#cbd5e1" />
+
+      <!-- Text Lines (Name, Info) -->
+      <rect x="236" y="196" width="140" height="16" rx="8" fill="#94a3b8" />
+      <rect x="236" y="236" width="100" height="12" rx="6" fill="#cbd5e1" />
+      <rect x="236" y="266" width="120" height="12" rx="6" fill="#cbd5e1" />
+  </g>
+
+  <!-- Glowing Scanner Laser -->
+  <!-- The line -->
+  <rect x="66" y="246" width="380" height="8" rx="4" fill="#00e5ff" filter="url(#glow)" />
+  <!-- The light beam gradient -->
+  <polygon points="66,254 446,254 416,336 96,336" fill="#00e5ff" opacity="0.25" />
+
+  <!-- "8x Copies" Badge at the bottom right -->
+  <g transform="translate(320, 290)" filter="url(#shadow)">
+      <circle cx="50" cy="50" r="45" fill="#f59e0b" />
+      <!-- Inner border for polish -->
+      <circle cx="50" cy="50" r="38" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.5" />
+      <!-- Text -->
+      <text x="50" y="65" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="42" fill="#ffffff" text-anchor="middle">8X</text>
+  </g>
+</svg>
