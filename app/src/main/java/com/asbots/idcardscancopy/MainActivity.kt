@@ -228,12 +228,18 @@ fun IDCardScannerApp() {
         galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    val startSelectionOrCrop = { front: Boolean ->
+    val startSelection = { front: Boolean ->
+        isFrontSide = front
+        showSourceDialog = true
+    }
+
+    val openCropForExisting = { front: Boolean ->
         isFrontSide = front
         val existingRawUri = if (front) rawFrontImageUri else rawBackImageUri
         val existingCroppedUri = if (front) frontImageUri else backImageUri
-        if (existingRawUri != null || existingCroppedUri != null) {
-            rawImageToCropUri = existingRawUri ?: existingCroppedUri
+        val uriToCrop = existingRawUri ?: existingCroppedUri
+        if (uriToCrop != null) {
+            rawImageToCropUri = uriToCrop
             showCropScreen = true
         } else {
             showSourceDialog = true
@@ -281,6 +287,11 @@ fun IDCardScannerApp() {
             onCancel = {
                 showFilterScreen = false
                 croppedImageToFilterUri = null
+                if (isFrontSide && frontImageUri == null) {
+                    rawFrontImageUri = null
+                } else if (!isFrontSide && backImageUri == null) {
+                    rawBackImageUri = null
+                }
             }
         )
     } else if (showCropScreen && rawImageToCropUri != null) {
@@ -295,6 +306,11 @@ fun IDCardScannerApp() {
             onCancel = {
                 showCropScreen = false
                 rawImageToCropUri = null
+                if (isFrontSide && frontImageUri == null) {
+                    rawFrontImageUri = null
+                } else if (!isFrontSide && backImageUri == null) {
+                    rawBackImageUri = null
+                }
             }
         )
     } else if (pdfFile != null) {
@@ -324,7 +340,8 @@ fun IDCardScannerApp() {
                 onOpenDrawer = {
                     coroutineScope.launch { drawerState.open() }
                 },
-                onSlotClick = { front -> startSelectionOrCrop(front) },
+                onSlotClick = { front -> startSelection(front) },
+                onEditSlot = { front -> openCropForExisting(front) },
                 onClear = { front ->
                     if (front) {
                         frontImageUri = null

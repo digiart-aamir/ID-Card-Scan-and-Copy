@@ -45,6 +45,7 @@ fun HomeScreen(
     isGenerating: Boolean,
     onOpenDrawer: () -> Unit = {},
     onSlotClick: (front: Boolean) -> Unit,
+    onEditSlot: (front: Boolean) -> Unit = {},
     onClear: (front: Boolean) -> Unit,
     onGenerate: () -> Unit
 ) {
@@ -104,8 +105,8 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            StepSlot(1, "Front side", frontUri, { onSlotClick(true) }, { onClear(true) })
-            StepSlot(2, "Back side", backUri, { onSlotClick(false) }, { onClear(false) })
+            StepSlot(1, "Front side", frontUri, { onSlotClick(true) }, { onEditSlot(true) }, { onClear(true) })
+            StepSlot(2, "Back side", backUri, { onSlotClick(false) }, { onEditSlot(false) }, { onClear(false) })
             Spacer(modifier = Modifier.height(6.dp))
         }
 
@@ -155,6 +156,7 @@ private fun StepSlot(
     title: String,
     uri: Uri?,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onClear: () -> Unit
 ) {
     val done = uri != null
@@ -183,7 +185,8 @@ private fun StepSlot(
                 Text(title, style = MaterialTheme.typography.titleMedium)
                 if (done) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ActionPill("Crop / Edit", MaterialTheme.colorScheme.onSurface, onClick)
+                        ActionPill("Crop / Edit", MaterialTheme.colorScheme.onSurface, onEdit)
+                        ActionPill("Retake", MaterialTheme.colorScheme.primary, onClick)
                         ActionPill("Clear", MaterialTheme.colorScheme.error, onClear)
                     }
                 }
